@@ -7,6 +7,7 @@ import com.github.sysdepen.depen_api.security.auth.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,59 +28,40 @@ public class DocumentService {
 
 
     public Documents save(Long userId, String documentType, String fileName) {
-
-        try{
-            // Define o caminho do arquivo com base no tipo de documento
+        try {
             String filePath = "uploads/" + userId + "/" + documentType + "/" + fileName;
 
-            // Cria a entidade e salva no banco
-            Documents userDocument = new Documents();
-            Usuario userCurrent =  this.userService.findById(userId);
-            userDocument.setUser(userCurrent);
+            Usuario userCurrent = userService.findById(userId);
 
-            if(Objects.equals(documentType, "RG")) {
-                userDocument.setFileRGPath(filePath);
-            }else {
-                var path =  userDocument.getFileRGPath();
-                userDocument.setFileRGPath(path);
-            }
+            // Verifica se já existe um registro para o usuário
+            Documents userDocument = documentRepository.findByUser(userCurrent)
+                    .orElseGet(() -> {
+                        Documents newDoc = new Documents();
+                        newDoc.setUser(userCurrent);
+                        return newDoc;
+                    });
 
-            if(Objects.equals(documentType, "CPF")) {
-                userDocument.setFileCPFPath(filePath);
-            }else {
-                var path =  userDocument.getFileCPFPath();
-                userDocument.setFileCPFPath(path);
-            }
-
-            if (Objects.equals(documentType, "grauP")) {
-                userDocument.setFileGrauParentescoPath(filePath);
-            } else {
-                var path =  userDocument.getFileGrauParentescoPath();
-                userDocument.setFileGrauParentescoPath(path);
-            }
-
-            if(Objects.equals(documentType, "endereco")) {
-                userDocument.setFileEnderecoPath(filePath);
-            }else {
-                var path =  userDocument.getFileEnderecoPath();
-                userDocument.setFileEnderecoPath(path);
-            }
-
-            if(Objects.equals(documentType, "foto")) {
-                userDocument.setFileFotoPath(filePath);
-            }else {
-                var path =  userDocument.getFileFotoPath();
-                userDocument.setFileFotoPath(path);
+            // Atualiza apenas o campo do tipo correspondente
+            switch (documentType.toLowerCase()) {
+                case "rg" -> userDocument.setFileRGPath(filePath);
+                case "cpf" -> userDocument.setFileCPFPath(filePath);
+                case "graup" -> userDocument.setFileGrauParentescoPath(filePath);
+                case "endereco" -> userDocument.setFileEnderecoPath(filePath);
+                case "foto" -> userDocument.setFileFotoPath(filePath);
+                case "antcriminais" -> userDocument.setFileAntCriminaisPath(filePath);
+                default -> throw new IllegalArgumentException("Tipo de documento não reconhecido: " + documentType);
             }
 
             userDocument.setDocumentType(documentType);
+            userDocument.setUpdated_at(LocalDateTime.now());
 
             return documentRepository.save(userDocument);
-        }
-        catch (Exception e){
-            throw new RuntimeException("document not saved");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("document not saved: " + e.getMessage());
         }
     }
+
 
 
     public List<Documents> findAll() {
