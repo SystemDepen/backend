@@ -26,6 +26,9 @@ public class DocumentService {
         return documentRepository.findByUserIdAndDocumentType(userId, documentType);
     }
 
+    public List<Documents> findAllByUser(Long userId) {
+        return documentRepository.findAllByUserId(userId);
+    }
 
     public Documents save(Long userId, String documentType, String fileName) {
         try {

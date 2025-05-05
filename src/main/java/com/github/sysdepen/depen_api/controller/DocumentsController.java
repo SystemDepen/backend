@@ -56,7 +56,18 @@ public class DocumentsController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Documento não encontrado"));
 
         // Obtém o caminho completo do arquivo no sistema de arquivos
-        File file = new File(document.getFileRGPath());
+        String filePath;
+        switch (documentType.toLowerCase()) {
+            case "cpf" -> filePath = document.getFileCPFPath();
+            case "rg" -> filePath = document.getFileRGPath();
+            case "graup" -> filePath = document.getFileGrauParentescoPath();
+            case "foto" -> filePath = document.getFileFotoPath();
+            case "endereco" -> filePath = document.getFileEnderecoPath();
+            case "antcriminais" -> filePath = document.getFileAntCriminaisPath();
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tipo de documento inválido");
+        }
+
+        File file = new File(filePath);
 
         if (!file.exists()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Arquivo não encontrado no servidor");
@@ -132,4 +143,10 @@ public class DocumentsController {
         documentService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<Documents>> findAllByUser(@RequestParam Long userId) {
+        return ResponseEntity.ok(documentService.findAllByUser(userId));
+    }
+
 }
