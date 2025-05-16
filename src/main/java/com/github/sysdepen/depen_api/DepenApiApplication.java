@@ -19,3 +19,10 @@ public class DepenApiApplication extends SpringBootServletInitializer {
 		return builder.sources(DepenApiApplication.class);
 	}
 }
+
+//@SpringBootApplication
+//public class DepenApiApplication {
+//	public static void main(String[] args) {
+//		SpringApplication.run(DepenApiApplication.class, args);
+//	}
+//}

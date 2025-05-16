@@ -6,7 +6,6 @@ import java.util.Optional;
 import com.github.sysdepen.depen_api.repository.UsuarioRepository;
 import com.github.sysdepen.depen_api.security.auth.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -16,14 +15,15 @@ public class UsuarioService {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
-
 	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
-	
+	private KeycloakService keyCloakService;
+
 
 	public String save (Usuario usuario) {
 
-		usuario.setPassword(this.bCryptPasswordEncoder.encode(usuario.getPassword()));
+		String keycloakId = keyCloakService.criarUsuarioNoKeycloak(usuario);
+
+		usuario.setKeyCloakId(keycloakId);
 		this.usuarioRepository.save(usuario);
 		return "Usuario cadastrado com sucesso";
 	}
@@ -42,6 +42,15 @@ public class UsuarioService {
 		}else
 			return null;
 		
+	}
+
+	public Usuario findByDocument(String document) {
+		Optional<Usuario> optional =
+				this.usuarioRepository.findByDocument(document);
+		if(optional.isPresent()) {
+			return optional.get();
+		}else
+			return null;
 	}
 	
 	public List<Usuario> findAll () {

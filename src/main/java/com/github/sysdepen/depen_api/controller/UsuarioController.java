@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
 
 @Validated
 @RestController
-@RequestMapping("/api/v1/usuario")
+@RequestMapping("/v1/usuario")
 @CrossOrigin("*")
 public class UsuarioController {
 
@@ -55,6 +55,16 @@ public class UsuarioController {
 	public ResponseEntity<Usuario> findById(@PathVariable long id){
 		try {
 			Usuario usuario = this.usuarioService.findById(id);
+			return new ResponseEntity<>(usuario, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST );
+		}
+	}
+
+	@GetMapping("/findByDocument/{document}")
+	public ResponseEntity<Usuario> findByDocument(@PathVariable String document){
+		try {
+			Usuario usuario = this.usuarioService.findByDocument(document);
 			return new ResponseEntity<>(usuario, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST );

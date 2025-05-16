@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 @Table(name = "tb_usuario")
-public class Usuario implements UserDetails{
+public class Usuario {
 	
 	//private static final long serialVersionUID = 1L;
 	
@@ -31,14 +31,16 @@ public class Usuario implements UserDetails{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	private String KeyCloakId;
+
 	@NotBlank(message = "O nome é obrigatório.")
 	private String name;
 
 	@NotBlank(message = "O documento é obrigatório.")
 	private String document;
 
-	@NotBlank(message = "A senha é obrigatória.")
-	private String password;
+//	@Transient
+//	private String password;
 
 	@Email(message = "E-mail inválido.")
 	private String email;
@@ -51,51 +53,6 @@ public class Usuario implements UserDetails{
 	@OneToMany(mappedBy = "user")
 	@JsonIgnoreProperties("user")
 	private List<Protocols> protocols;
-
-	@JsonIgnore
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		List<GrantedAuthority> authorities = new ArrayList<>();
-	    authorities.add(new SimpleGrantedAuthority(this.role));
-	    return authorities;
-	}
-
-	@Override
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return password;
-	}
-
-	@Override
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return document;
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
 
 
 }
