@@ -48,7 +48,7 @@ public class SecurityConfig  {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
 		// ou restrinja só ao seu front:
-		config.addAllowedOriginPattern("https://frontend.local.sysdepen.com.br/**");
+		config.addAllowedOriginPattern("https://192.168.1.28:443");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");   // inclui OPTIONS, GET, POST, etc.
 		config.setMaxAge(3600L);
