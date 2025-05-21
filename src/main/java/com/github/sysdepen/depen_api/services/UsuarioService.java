@@ -23,8 +23,14 @@ public class UsuarioService {
 
 		String keycloakId = keyCloakService.criarUsuarioNoKeycloak(usuario);
 
-		usuario.setKeyCloakId(keycloakId);
-		this.usuarioRepository.save(usuario);
+		Usuario entidade = new Usuario();
+		entidade.setKeyCloakId(keycloakId);
+		entidade.setDocument(usuario.getDocument());  // vai pra coluna document
+		entidade.setName(usuario.getName());          // vai pra coluna name
+		entidade.setEmail(usuario.getEmail());
+		entidade.setDate_born(usuario.getDate_born());
+
+		this.usuarioRepository.save(entidade);
 		return "Usuario cadastrado com sucesso";
 	}
 	

@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("api/v1/teste")
+@RequestMapping("/v1/teste")
 public class FileUploadController {
 
     private DocumentsController documentsController;

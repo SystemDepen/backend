@@ -22,8 +22,9 @@ public class LoginService {
 	private LoginRepository repository;
 
 
-	private static final String TOKEN_URL = "http://backend:9443/realms/projeto-mensal/protocol/openid-connect/token";
+	private static final String TOKEN_URL = "http://backend.local.sysdepen.com.br:8433/realms/projeto-mensal/protocol/openid-connect/token";
 	private static final String CLIENT_ID = "backend-depen";
+	private static final String CLIENT_SECRET= "RJPm5lBOmA2q86G4eliBzRiv1MgBAsbj";
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	public String logar(Login login) {
@@ -33,6 +34,7 @@ public class LoginService {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 		form.add("grant_type", "password");
 		form.add("client_id", CLIENT_ID);
+		form.add("client_secret", CLIENT_SECRET);
 		form.add("username", login.getDocument());
 		form.add("password", login.getPassword());
 

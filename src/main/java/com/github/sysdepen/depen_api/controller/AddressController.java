@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/address")
+@RequestMapping("/v1/address")
 @Validated
 public class AddressController {
 

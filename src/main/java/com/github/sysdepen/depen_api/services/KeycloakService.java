@@ -23,12 +23,12 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class KeycloakService {
 
-    private final String serverUrl = "https://backend.local.sysdepen.com.br:8443/";
+    private final String serverUrl = "http://backend.local.sysdepen.com.br:8433/";
     private final String realm = "projeto-mensal";
-    private final String adminUsername = "admin";
-    private final String adminPassword = "root";
-    private final String clientId = "backend-depen";
-    private final String clientSecret = "RJPm5lBOmA2q86G4eliBzRiv1MgBAsbj";
+    private static final String CLIENT_ID = "backend-depen";
+    private static final String CLIENT_SECRET= "RJPm5lBOmA2q86G4eliBzRiv1MgBAsbj";
+    private static final String TOKEN_URL = "http://backend.local.sysdepen.com.br:8433/realms/projeto-mensal/protocol/openid-connect/token";
+    private final RestTemplate restTemplate = new RestTemplate();
 
     private static final Logger log = LoggerFactory.getLogger(KeycloakService.class);
 
@@ -44,16 +44,21 @@ public class KeycloakService {
         Map<String, Object> user = new HashMap<>();
         user.put("enabled", true);
         user.put("username", request.getDocument());
+        // nome e sobrenome como vieram no JSON de cadastro
         user.put("firstName", request.getName());
+        user.put("email", request.getEmail());
+        user.put("enabled", true);
 
         Map<String, String> credential = new HashMap<>();
         credential.put("type", "password");
-//        credential.put("value", request.getPassword());
+        credential.put("value", request.getPassword());
         credential.put("temporary", "false");
 
         log.info("usuario no keycloak:", user);
         user.put("credentials", List.of(credential));
+
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(user, headers);
+
 
         try {
             log.info("Enviando requisição para criar usuário...");
@@ -63,7 +68,11 @@ public class KeycloakService {
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 String userId = buscarUserIdPorUsername(request.getDocument(), token);
-                atribuirRoleAoUsuario(userId, request.getRole(), token);
+                int roleCode = Integer.parseInt(request.getRole());
+                String roleName = roleCode == 1
+                        ? "depen-admin"
+                        : "user-default";
+                atribuirRoleAoUsuario(userId, roleName, token);
                 return userId;
             } else {
                 throw new RuntimeException("Erro ao criar usuário no Keycloak: " + response.getStatusCode());
@@ -109,27 +118,29 @@ public class KeycloakService {
 
 
 
-    private String getAdminToken() {
-        String tokenUrl = serverUrl + "/realms/" + realm + "/protocol/openid-connect/token";
-
+    public String getAdminToken() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        // Autentica o client via HTTP Basic
+        headers.setBasicAuth(CLIENT_ID, CLIENT_SECRET);
 
+        // Só precisa do grant_type=client_credentials
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "client_credentials");
-        form.add("client_id", clientId);
-        form.add("client_secret", clientSecret);
-        form.add("username", adminUsername);
-        form.add("password", adminPassword);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(form, headers);
+        HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(form, headers);
 
-        try {
-            ResponseEntity<Map> response = new RestTemplate().postForEntity(tokenUrl, request, Map.class);
-            return (String) response.getBody().get("access_token");
-        } catch (RestClientException ex) {
-            throw new RuntimeException("Erro ao obter token do Keycloak", ex);
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                TOKEN_URL,     // https://…/realms/projeto-mensal/protocol/openid-connect/token
+                request,
+                Map.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful() || !response.getBody().containsKey("access_token")) {
+            throw new RuntimeException("Falha ao obter token do Keycloak: HTTP "
+                    + response.getStatusCode() + " / " + response.getBody());
         }
+        return (String) response.getBody().get("access_token");
     }
 
     private String buscarUserIdPorUsername(String username, String token) {
@@ -154,9 +165,9 @@ public class KeycloakService {
         String keycloakRole = "";
 
 
-        if(roleName.equals("GESTOR")) {
-            keycloakRole = "admin";
-        }else if (roleName.equals("FUNCIONARIO")) {
+        if(roleName.equals("depen-admin")) {
+            keycloakRole = "depen-admin";
+        }else if (roleName.equals("user-default")) {
             keycloakRole = "user-default";
         }
 

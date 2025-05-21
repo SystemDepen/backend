@@ -39,8 +39,8 @@ public class Usuario {
 	@NotBlank(message = "O documento é obrigatório.")
 	private String document;
 
-//	@Transient
-//	private String password;
+	@Transient
+	private String password;
 
 	@Email(message = "E-mail inválido.")
 	private String email;

@@ -13,8 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/user/subject2")
+@RequestMapping("/v1/user/subject2")
 @Validated
+@CrossOrigin(origins = "*")
 public class SubInMostVisitController {
 
     @Autowired

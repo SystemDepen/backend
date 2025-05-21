@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/documents")
+@RequestMapping("/v1/documents")
 @Validated
 @CrossOrigin("*")
 public class DocumentsController {

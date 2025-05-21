@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@CrossOrigin("*")
-@RequestMapping("api/v1/protocols")
+@CrossOrigin(origins = "*")
+@RequestMapping("/v1/protocols")
 public class ProtocolController {
     @Autowired
     private ProtocoloService protocoloService;
