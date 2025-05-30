@@ -22,7 +22,7 @@ public class LoginService {
 	private LoginRepository repository;
 
 
-	private static final String TOKEN_URL = "https://backend.local.sysdepen.com.br:8433/realms/projeto-mensal/protocol/openid-connect/token";
+	private static final String TOKEN_URL = "https://backend.local.sysdepen.com.br:8443/realms/projeto-mensal/protocol/openid-connect/token";
 	private static final String CLIENT_ID = "backend-depen";
 	private static final String CLIENT_SECRET= "RJPm5lBOmA2q86G4eliBzRiv1MgBAsbj";
 	private final RestTemplate restTemplate = new RestTemplate();

@@ -23,11 +23,11 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class KeycloakService {
 
-    private final String serverUrl = "https://backend.local.sysdepen.com.br:8433/";
+    private final String serverUrl = "https://backend.local.sysdepen.com.br:8443/";
     private final String realm = "projeto-mensal";
     private static final String CLIENT_ID = "backend-depen";
     private static final String CLIENT_SECRET= "RJPm5lBOmA2q86G4eliBzRiv1MgBAsbj";
-    private static final String TOKEN_URL = "https://backend.local.sysdepen.com.br:8433/realms/projeto-mensal/protocol/openid-connect/token";
+    private static final String TOKEN_URL = "https://backend.local.sysdepen.com.br:8443/realms/projeto-mensal/protocol/openid-connect/token";
     private final RestTemplate restTemplate = new RestTemplate();
 
     private static final Logger log = LoggerFactory.getLogger(KeycloakService.class);
