@@ -20,25 +20,25 @@ import org.slf4j.Logger;
 @CrossOrigin(origins = "*")
 public class LoginController {
 
-	@Autowired
-	private LoginService loginService;
+  @Autowired
+  private LoginService loginService;
 
-	@Autowired
-	private UsuarioRepository repository;
+  @Autowired
+  private UsuarioRepository repository;
 
-	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+  private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
-	@PostMapping("/logar")
-	public ResponseEntity<String> logar(@Valid @RequestBody Login login) {
-		try {
-			String token = loginService.logar(login);
-			return new ResponseEntity<>(token, HttpStatus.OK);
-		} catch (AuthenticationException e) {
-			return new ResponseEntity<>("Falha na autenticação: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
-		} catch (Exception e) {
-			return new ResponseEntity<>("Erro ao realizar login: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-		}
-	}
+  @PostMapping("/logar")
+  public ResponseEntity<String> logar(@Valid @RequestBody Login login) {
+    try {
+      String token = loginService.logar(login);
+      return new ResponseEntity<>(token, HttpStatus.OK);
+    } catch (AuthenticationException e) {
+      return new ResponseEntity<>("Falha na autenticação: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+    } catch (Exception e) {
+      return new ResponseEntity<>("Erro ao realizar login: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+  }
 
 
 }

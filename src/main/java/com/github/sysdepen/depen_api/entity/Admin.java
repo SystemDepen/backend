@@ -6,8 +6,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import org.hibernate.envers.Audited;
 import lombok.Data;
 import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +19,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "tb_admin")
+@Audited
+@EntityListeners(AuditingEntityListener.class)
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,10 +49,12 @@ public class Admin {
     @Column(nullable = false)
     private Short role;
 
-    @Column(nullable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime created_at;
 
-    @Column(nullable = false)
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updated_at;
 
     @OneToMany

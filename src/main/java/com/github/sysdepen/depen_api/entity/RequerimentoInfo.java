@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.hibernate.envers.Audited;
 
 
 @Data
 @Entity
 @Table(name = "tb_requerimento_info")
+@Audited
 public class RequerimentoInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

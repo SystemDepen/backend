@@ -8,10 +8,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.hibernate.envers.Audited;
+
 
 @Data
 @Entity
-@Table(name = "tb_address")
+@Audited
 public class Address {
     // Regex pattern para UF
     public static final String UF_REGEX = "^(AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)$";
