@@ -44,7 +44,7 @@ public class Usuario implements UserDetails{
 	private String email;
 
 	private String role;
-	private LocalDate date_born;
+	private LocalDateTime date_born;
 	private LocalDateTime created_at;
 	private LocalDateTime updated_at;
 

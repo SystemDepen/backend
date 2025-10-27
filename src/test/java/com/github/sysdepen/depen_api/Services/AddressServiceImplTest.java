@@ -1,102 +1,184 @@
-//package com.github.sysdepen.depen_api.Services;
-//
-//
-//import com.github.sysdepen.depen_api.entity.Address;
-//import com.github.sysdepen.depen_api.repository.AddressRepository;
-//import com.github.sysdepen.depen_api.services.AddressService;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//public class AddressServiceImplTest {
-//
-//    @InjectMocks
-//    private AddressService addressService;
-//
-//    @Mock
-//    private AddressRepository addressRepository;
-//
-//    private Address address;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        address = new Address();
-//        address.setId(1L);
-//        address.setStreet("Main Street");
-//        address.setCity("Cityville");
-//    }
-//
-//    @Test
-//    void saveAddress_ShouldReturnSavedAddress() {
-//        when(addressRepository.save(address)).thenReturn(address);
-//
-//        Address savedAddress = addressService.save(address);
-//
-//        assertNotNull(savedAddress);
-//        assertEquals("Main Street", savedAddress.getStreet());
-//        verify(addressRepository, times(1)).save(address);
-//    }
-//
-//    @Test
-//    void findAll_ShouldReturnListOfAddresses() {
-//        List<Address> addresses = Arrays.asList(address);
-//        when(addressRepository.findAll()).thenReturn(addresses);
-//
-//        List<Address> result = addressService.findAll();
-//
-//        assertNotNull(result);
-//        assertEquals(1, result.size());
-//        verify(addressRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    void findById_ShouldReturnAddress_WhenIdExists() {
-//        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
-//
-//        Optional<Address> foundAddress = addressService.findById(1L);
-//
-//        assertTrue(foundAddress.isPresent());
-//        assertEquals("Main Street", foundAddress.get().getStreet());
-//        verify(addressRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    void findById_ShouldReturnEmpty_WhenIdDoesNotExist() {
-//        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        Optional<Address> foundAddress = addressService.findById(1L);
-//
-//        assertFalse(foundAddress.isPresent());
-//        verify(addressRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    void updateAddress_ShouldReturnUpdatedAddress() {
-//        when(addressRepository.save(address)).thenReturn(address);
-//
-//        Address updatedAddress = addressService.update(address);
-//
-//        assertNotNull(updatedAddress);
-//        assertEquals("Main Street", updatedAddress.getStreet());
-//        verify(addressRepository, times(1)).save(address);
-//    }
-//
-//    @Test
-//    void deleteById_ShouldCallDeleteOnRepository() {
-//        doNothing().when(addressRepository).deleteById(1L);
-//
-//        addressService.deleteById(1L);
-//
-//        verify(addressRepository, times(1)).deleteById(1L);
-//    }
-//}
+package com.github.sysdepen.depen_api.Services;
+
+import com.github.sysdepen.depen_api.entity.Address;
+import com.github.sysdepen.depen_api.repository.AddressRepository;
+import com.github.sysdepen.depen_api.services.AddressService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+@ExtendWith(MockitoExtension.class)
+class AddressServiceImplTest {
+
+    @InjectMocks
+    private AddressService addressService;
+
+    @Mock
+    private AddressRepository addressRepository;
+
+    private Address buildAddress() {
+        Address a = new Address();
+        a.setId(1L);
+        a.setStreet("Main Street");
+        a.setCity("Cityville");
+        return a;
+    }
+
+    @Test
+    @DisplayName("save: deve retornar o endereço salvo")
+    void save_shouldReturnSavedAddress() {
+        // Arrange
+        Address address = buildAddress();
+        given(addressRepository.save(address)).willReturn(address);
+
+        // Act
+        Address result = addressService.save(address);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Main Street", result.getStreet());
+        then(addressRepository).should(times(1)).save(address);
+        then(addressRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("findAll: deve retornar a lista de endereços")
+    void findAll_shouldReturnListOfAddresses() {
+        // Arrange
+        Address address = buildAddress();
+        given(addressRepository.findAll()).willReturn(List.of(address));
+
+        // Act
+        List<Address> result = addressService.findAll();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Main Street", result.get(0).getStreet());
+        then(addressRepository).should(times(1)).findAll();
+        then(addressRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Nested
+    @DisplayName("findById")
+    class FindById {
+
+        @Test
+        @DisplayName("deve retornar Optional preenchido quando existir")
+        void shouldReturnAddressWhenIdExists() {
+            // Arrange
+            Address address = buildAddress();
+            given(addressRepository.findById(1L)).willReturn(Optional.of(address));
+
+            // Act
+            Optional<Address> result = addressService.findById(1L);
+
+            // Assert
+            assertTrue(result.isPresent());
+            assertEquals("Main Street", result.get().getStreet());
+            then(addressRepository).should(times(1)).findById(1L);
+            then(addressRepository).shouldHaveNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("deve retornar Optional vazio quando não existir")
+        void shouldReturnEmptyWhenIdDoesNotExist() {
+            // Arrange
+            given(addressRepository.findById(1L)).willReturn(Optional.empty());
+
+            // Act
+            Optional<Address> result = addressService.findById(1L);
+
+            // Assert
+            assertTrue(result.isEmpty());
+            then(addressRepository).should(times(1)).findById(1L);
+            then(addressRepository).shouldHaveNoMoreInteractions();
+        }
+    }
+
+    @Test
+    @DisplayName("update: deve retornar o endereço atualizado (save no repositório)")
+    void update_shouldReturnUpdatedAddress() {
+        // Arrange
+        Address address = buildAddress();
+        given(addressRepository.save(address)).willReturn(address);
+
+        // Act
+        Address result = addressService.update(address);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Main Street", result.getStreet());
+        then(addressRepository).should(times(1)).save(address);
+        then(addressRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Nested
+    @DisplayName("deleteById")
+    class DeleteById {
+
+        @Test
+        @DisplayName("deve deletar e retornar true quando existir")
+        void shouldDeleteAndReturnTrueWhenExists() {
+            // Arrange
+            long id = 1L;
+            given(addressRepository.existsById(id)).willReturn(true);
+            willDoNothing().given(addressRepository).deleteById(id);
+
+            // Act
+            boolean deleted = addressService.deleteById(id);
+
+            // Assert
+            assertTrue(deleted);
+            then(addressRepository).should(times(1)).existsById(id);
+            then(addressRepository).should(times(1)).deleteById(id);
+            then(addressRepository).shouldHaveNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("deve retornar false e não chamar delete quando não existir")
+        void shouldReturnFalseAndNotDeleteWhenDoesNotExist() {
+            // Arrange
+            long id = 1L;
+            given(addressRepository.existsById(id)).willReturn(false);
+
+            // Act
+            boolean deleted = addressService.deleteById(id);
+
+            // Assert
+            assertFalse(deleted);
+            then(addressRepository).should(times(1)).existsById(id);
+            then(addressRepository).should(never()).deleteById(anyLong());
+            then(addressRepository).shouldHaveNoMoreInteractions();
+        }
+    }
+
+    @Test
+    @DisplayName("findAll: deve lidar com lista vazia")
+    void findAll_shouldHandleEmptyList() {
+        // Arrange
+        given(addressRepository.findAll()).willReturn(Collections.emptyList());
+
+        // Act
+        List<Address> result = addressService.findAll();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(addressRepository, times(1)).findAll();
+        verifyNoMoreInteractions(addressRepository);
+    }
+}
+

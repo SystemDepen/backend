@@ -1,5 +1,6 @@
 package com.github.sysdepen.depen_api.controller;
 
+import com.github.sysdepen.depen_api.entity.Protocols;
 import com.github.sysdepen.depen_api.entity.RequerimentoInfo;
 import com.github.sysdepen.depen_api.services.RequerimentosInfoService;
 import jakarta.validation.Valid;
@@ -25,8 +26,10 @@ public class RequerimentoInfoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<RequerimentoInfo>> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(requerimentoInfoService.findById(id));
+    public ResponseEntity<RequerimentoInfo> findById(@PathVariable Long id) {
+        return requerimentoInfoService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("/save")
@@ -35,13 +38,14 @@ public class RequerimentoInfoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RequerimentoInfo> update(@PathVariable Long id, @RequestBody @Valid RequerimentoInfo requerimentoInfo) {
-        return ResponseEntity.status(HttpStatus.OK).body(requerimentoInfoService.update(id, requerimentoInfo));
+    public ResponseEntity<RequerimentoInfo> update(@RequestBody @Valid RequerimentoInfo requerimentoInfo) {
+        return ResponseEntity.status(HttpStatus.OK).body(requerimentoInfoService.update(requerimentoInfo));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        requerimentoInfoService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        boolean deleted = requerimentoInfoService.deleteById(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

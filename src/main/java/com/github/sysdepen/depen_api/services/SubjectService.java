@@ -9,29 +9,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-
 @Service
 public class SubjectService {
-	 @Autowired
-	    private SubjectRepository subjectRepository;
+    @Autowired
+    private SubjectRepository subjectRepository;
 
-	    public Subject save(Subject subject) {
-	        return subjectRepository.save(subject);
-	    }
+    public Subject save(Subject subject) {
+        return subjectRepository.save(subject);
+    }
 
-	    public List<Subject> findAll() {
-	        return subjectRepository.findAll();
-	    }
+    public List<Subject> findAll() {
+        return subjectRepository.findAll();
+    }
 
-	    public Optional<Subject> findById(Long id) {
-	        return subjectRepository.findById(id);
-	    }
+    public Optional<Subject> findById(Long id) {
+        return subjectRepository.findById(id);
+    }
 
-	    public Subject update(Subject subject) {
-	        return subjectRepository.save(subject);
-	    }
+    public Subject update(Subject subject) {
+        return subjectRepository.save(subject);
+    }
 
-	    public void deleteById(Long id) {
-	    	subjectRepository.deleteById(id);
-	    }
+    public boolean deleteById(Long id) {
+        if (subjectRepository.existsById(id)) {
+            subjectRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

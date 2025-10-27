@@ -30,7 +30,12 @@ public class AdminService {
         return adminRepository.save(admin);
     }
 
-    public void deleteById(Long id) {
-        adminRepository.deleteById(id);
+    public boolean deleteById(Long id) {
+        if (adminRepository.existsById(id)) {
+            adminRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

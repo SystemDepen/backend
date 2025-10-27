@@ -10,11 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-
 @Service
-public class SubInMostVisitService{
+public class SubInMostVisitService {
 
-        @Autowired
+    @Autowired
     private SubInMostVisitRepository subInMostVisitRepository;
 
     public SubjectInmostVisit save(SubjectInmostVisit subInMostVisit) {
@@ -33,7 +32,12 @@ public class SubInMostVisitService{
         return subInMostVisitRepository.save(subInMostVisit);
     }
 
-    public void deleteById(Long id) {
-    	subInMostVisitRepository.deleteById(id);
+    public boolean deleteById(Long id) {
+        if (subInMostVisitRepository.existsById(id)) {
+            subInMostVisitRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

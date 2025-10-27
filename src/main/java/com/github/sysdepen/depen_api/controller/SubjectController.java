@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.github.sysdepen.depen_api.entity.Subject;
+import com.github.sysdepen.depen_api.entity.SubjectInmostVisit;
 import com.github.sysdepen.depen_api.services.SubjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,10 @@ public class SubjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Subject>> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(subjectService.findById(id));
+    public ResponseEntity<Subject> findById(@PathVariable Long id) {
+        return subjectService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
@@ -42,14 +45,15 @@ public class SubjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.save(subject));
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<Subject> update(@RequestBody Subject subject) {
         return ResponseEntity.status(HttpStatus.OK).body(subjectService.update(subject));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        subjectService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean deleted = subjectService.deleteById(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

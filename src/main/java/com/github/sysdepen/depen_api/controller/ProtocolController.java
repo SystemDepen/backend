@@ -27,9 +27,12 @@ public class ProtocolController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Protocols>> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(protocoloService.findById(id));
+    public ResponseEntity<Protocols> findById(@PathVariable Long id) {
+        return protocoloService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
 
     @PostMapping("/save")
     public ResponseEntity<Protocols> create(@RequestBody @Valid Protocols protocols) {
@@ -46,8 +49,10 @@ public class ProtocolController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        protocoloService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean deleted = protocoloService.deleteById(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
 }

@@ -27,9 +27,12 @@ public class AdminController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Admin>> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.findById(id));
+    public ResponseEntity<Admin> findById(@PathVariable Long id) {
+        return adminService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
 
     @PostMapping
     public ResponseEntity<Admin> create(@Valid @RequestBody Admin admin) {
@@ -43,7 +46,7 @@ public class AdminController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        adminService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return adminService.deleteById(id) ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

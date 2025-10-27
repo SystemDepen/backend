@@ -29,7 +29,7 @@ public class UsuarioController {
 
 	@Autowired
 	private UsuarioService usuarioService;
-	
+
 
 	@PostMapping("/save")
 	public ResponseEntity<String> save(@Valid @RequestBody Usuario usuario){
@@ -40,7 +40,7 @@ public class UsuarioController {
 			return new ResponseEntity<>("Deu erro!"+e.getMessage(), HttpStatus.BAD_REQUEST );
 		}
 	}
-	
+
 	@PutMapping("/update/{id}")
 	public ResponseEntity<String> update(@Valid @RequestBody Usuario usuario, @PathVariable long id){
 		try {
@@ -60,7 +60,7 @@ public class UsuarioController {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST );
 		}
 	}
-	
+
 	@GetMapping("/findAll")
 	public ResponseEntity<List<Usuario>> findAll(){
 		try {
@@ -70,18 +70,12 @@ public class UsuarioController {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST );
 		}
 	}
-	
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<String> delete(@PathVariable long id){
-		try {
-			String mensagem = this.usuarioService.delete(id);
-			return new ResponseEntity<>(mensagem, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST );
-		}
-	}
-	
 
-	
-	
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean deleted = usuarioService.delete(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
 }

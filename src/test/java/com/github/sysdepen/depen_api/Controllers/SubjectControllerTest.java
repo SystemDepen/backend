@@ -2,11 +2,8 @@ package com.github.sysdepen.depen_api.Controllers;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.sysdepen.depen_api.controller.SubInMostVisitController;
+import com.github.sysdepen.depen_api.entity.Subject;
 import com.github.sysdepen.depen_api.entity.SubjectInmostVisit;
-import com.github.sysdepen.depen_api.repository.SubInMostVisitRepository;
-import com.github.sysdepen.depen_api.services.ProtocoloService;
-import com.github.sysdepen.depen_api.services.SubInMostVisitService;
 import com.github.sysdepen.depen_api.services.SubjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,43 +12,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class SubJectInmostVisitControllerTest {
+public class SubjectControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
 
-    @MockBean private SubInMostVisitService subInMostVisitService;
+    @MockBean private SubjectService subjectService;
 
-    SubjectInmostVisit subject = new SubjectInmostVisit();
+    Subject subject = new Subject();
+
+    SubjectInmostVisit subIn = new SubjectInmostVisit();
 
     @BeforeEach
     void setup(){
+        subIn.setId(1L);
+        subIn.setAccomplice("sim");
+        subIn.setVictim(false);
+        subIn.setPregnancy(true);
+        subIn.setTime_pregnancy("4");
+        subIn.setCreated_at(LocalDateTime.parse("2024-06-24T22:32:00"));
+        subIn.setUpdated_at(LocalDateTime.parse("2024-06-24T22:32:00"));
+
         subject.setId(1L);
-        subject.setAccomplice("sim");
-        subject.setVictim(false);
-        subject.setPregnancy(true);
-        subject.setTime_pregnancy("4");
+        subject.setSubject("teste");
+        subject.setId_inmost_visit(subIn);
         subject.setCreated_at(LocalDateTime.parse("2024-06-24T22:32:00"));
         subject.setUpdated_at(LocalDateTime.parse("2024-06-24T22:32:00"));
     }
@@ -59,13 +57,11 @@ public class SubJectInmostVisitControllerTest {
 
     @Test
     void create_deveRetornar201() throws Exception {
-        when(subInMostVisitService.save(any())).thenReturn(subject);
+        when(subjectService.save(any())).thenReturn(subject);
 
-        String json = """
-          { "accomplice":"sim", "victim":false, "pregnancy":true, "time_pregnancy":"4" }
-        """;
+        String json = objectMapper.writeValueAsString(subject);
 
-        mockMvc.perform(post("/api/v1/user/subject2")
+        mockMvc.perform(post("/api/v1/users/subject")
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isCreated())
@@ -75,11 +71,10 @@ public class SubJectInmostVisitControllerTest {
     @Test
     @DisplayName("create: payload inválido deve retornar 400")
     void create_payloadInvalido_deveRetornar400() throws Exception {
-        String jsonInvalido = """
-          { "accomplice":"xxx", "victim":false, "pregnancy":true, "time_pregnancy":"abc" }
-        """;
+        subject.setSubject(null);
+        String jsonInvalido = objectMapper.writeValueAsString(subject);
 
-        mockMvc.perform(post("/api/v1/user/subject2")
+        mockMvc.perform(post("/api/v1/users/subject")
                         .contentType("application/json")
                         .content(jsonInvalido))
                 .andExpect(status().isBadRequest());
@@ -87,10 +82,10 @@ public class SubJectInmostVisitControllerTest {
 
     @Test
     void findAll_deveRetornar200ELista() throws Exception {
-        SubjectInmostVisit s2 = new SubjectInmostVisit(); s2.setId(2L);
-        when(subInMostVisitService.findAll()).thenReturn(List.of(subject, s2));
+        Subject s2 = new Subject(); s2.setId(2L);
+        when(subjectService.findAll()).thenReturn(List.of(subject, s2));
 
-        mockMvc.perform(get("/api/v1/user/subject2"))
+        mockMvc.perform(get("/api/v1/users/subject"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -100,9 +95,9 @@ public class SubJectInmostVisitControllerTest {
 
     @Test
     void findById_deveRetornar200() throws Exception {
-        when(subInMostVisitService.findById(1L)).thenReturn(Optional.of(subject));
+        when(subjectService.findById(1L)).thenReturn(Optional.of(subject));
 
-        mockMvc.perform(get("/api/v1/user/subject2/{id}", 1L))
+        mockMvc.perform(get("/api/v1/users/subject/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
     }
@@ -110,21 +105,19 @@ public class SubJectInmostVisitControllerTest {
 
     @Test
     void findById_deveRetornar404_quandoNaoExiste() throws Exception {
-        when(subInMostVisitService.findById(999L)).thenReturn(Optional.empty());
+        when(subjectService.findById(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/user/subject2/{id}", 999L))
+        mockMvc.perform(get("/api/v1/users/subject/{id}", 999L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void update_deveRetornar200() throws Exception {
-        when(subInMostVisitService.update(any())).thenReturn(subject);
+        when(subjectService.update(any())).thenReturn(subject);
 
-        String json = """
-          { "id":1, "accomplice":"sim", "victim":false, "pregnancy":true, "time_pregnancy":"5" }
-        """;
+        String json = objectMapper.writeValueAsString(subject);
 
-        mockMvc.perform(put("/api/v1/user/subject2")
+        mockMvc.perform(put("/api/v1/users/subject/" + + subject.getId())
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isOk())
@@ -133,17 +126,17 @@ public class SubJectInmostVisitControllerTest {
 
     @Test
     void delete_deveRetornar204() throws Exception {
-        when(subInMostVisitService.deleteById(1L)).thenReturn(true);
+        when(subjectService.deleteById(1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/v1/user/subject2/{id}", 1L))
+        mockMvc.perform(delete("/api/v1/users/subject/{id}", 1L))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void delete_deveRetornar404_quandoNaoExiste() throws Exception {
-        when(subInMostVisitService.deleteById(999L)).thenReturn(false);
+        when(subjectService.deleteById(999L)).thenReturn(false);
 
-        mockMvc.perform(delete("/api/v1/user/subject2/{id}", 999L))
+        mockMvc.perform(delete("/api/v1/users/subject/{id}", 999L))
                 .andExpect(status().isNotFound());
     }
 }

@@ -7,6 +7,7 @@ import com.github.sysdepen.depen_api.repository.UsuarioRepository;
 import com.github.sysdepen.depen_api.security.auth.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -16,13 +17,14 @@ public class UsuarioService {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 
 	public String save (Usuario usuario) {
-
 		usuario.setPassword(this.bCryptPasswordEncoder.encode(usuario.getPassword()));
 		this.usuarioRepository.save(usuario);
 		return "Usuario cadastrado com sucesso";
@@ -50,9 +52,13 @@ public class UsuarioService {
 		
 	}
 	
-	public String delete (long id) {
-		this.usuarioRepository.deleteById(id);
-		return "Usuário deletado com sucesso!";
+	public Boolean delete (long id) {
+        if (usuarioRepository.existsById(id)) {
+		    this.usuarioRepository.deleteById(id);
+		    return true;
+        } else {
+            return false;
+        }
 	}
 	
 	

@@ -7,6 +7,7 @@ import com.github.sysdepen.depen_api.security.auth.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -96,11 +97,33 @@ public class DocumentService {
 
 
     public Documents update(Documents documents) {
-        return null;
+        if (documents == null || documents.getId() == null) {
+            throw new IllegalArgumentException("document id is required");
+        }
+
+        Documents current = documentRepository.findById(documents.getId())
+                .orElseThrow(() -> new RuntimeException("document not found with id " + documents.getId()));
+
+        // copia campos atualizáveis
+        current.setDocumentType(documents.getDocumentType());
+        current.setFileRGPath(documents.getFileRGPath());
+        current.setFileCPFPath(documents.getFileCPFPath());
+        current.setFileGrauParentescoPath(documents.getFileGrauParentescoPath());
+        current.setFileEnderecoPath(documents.getFileEnderecoPath());
+        current.setFileFotoPath(documents.getFileFotoPath());
+        current.setUpdated_at(LocalDateTime.now());
+
+        return documentRepository.save(current);
     }
 
 
     public void deleteById(Long id) {
-
+        if (id == null) {
+            throw new IllegalArgumentException("id is required");
+        }
+        if (!documentRepository.existsById(id)) {
+            throw new RuntimeException("document not found with id " + id);
+        }
+        documentRepository.deleteById(id);
     }
 }

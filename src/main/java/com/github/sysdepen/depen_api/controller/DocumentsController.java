@@ -132,4 +132,5 @@ public class DocumentsController {
         documentService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
 }

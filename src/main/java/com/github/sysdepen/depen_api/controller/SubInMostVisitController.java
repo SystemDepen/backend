@@ -26,8 +26,10 @@ public class SubInMostVisitController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<SubjectInmostVisit>> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(subInMostVisitService.findById(id));
+    public ResponseEntity<SubjectInmostVisit> findById(@PathVariable Long id) {
+        return subInMostVisitService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
@@ -48,8 +50,9 @@ public class SubInMostVisitController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        subInMostVisitService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean deleted = subInMostVisitService.deleteById(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

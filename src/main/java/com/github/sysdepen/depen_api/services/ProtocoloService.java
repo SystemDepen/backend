@@ -37,7 +37,12 @@ public class ProtocoloService {
     }
 
 
-    public void deleteById(Long id) {
-    	protocoloRepository.deleteById(id);
+    public boolean deleteById(Long id) {
+        if (protocoloRepository.existsById(id)) {
+            protocoloRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
